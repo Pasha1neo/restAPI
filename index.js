@@ -1,15 +1,26 @@
 const express = require('express')
-const mongoose = require('mongoose')
-const app = express()
-const port = 3000
 const cors = require('cors')
-mongoose.connect('mongodb://localhost/pasha1neo', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-app.use(cors())
+const mongoose = require('mongoose')
+const PORT = process.env.PORT || 5000
+
+const app = express()
+
+const authRouter = require('./route/auth')
+
 app.use(express.json())
-app.use('/api', require('./api'))
-app.listen(port, () => {
-    console.log(`Сервер запущен по адресу http://localhost:${port}/`)
-})
+app.use(cors())
+app.use('/api/auth', authRouter)
+const start = async () => {
+    try {
+        mongoose.connect('mongodb://127.0.0.1:27017/project-adaptive', {
+            useUnifiedTopology: true,
+            useNewUrlParser: true,
+        })
+        app.listen(PORT, () => {
+            console.log(`Сервер запущен на  http://localhost:${PORT}/`)
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+start()
