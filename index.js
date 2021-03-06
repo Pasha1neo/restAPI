@@ -8,7 +8,7 @@ const authRouter = require('./route/auth')
 const socketController = require('./socket-module')
 const io = require('socket.io')(server, {
     cors: {
-        origin: 'https://project-adaptive-server.herokuapp.com/',
+        origin: 'https://project-adaptive.herokuapp.com',
         methods: ['GET', 'POST'],
     },
 })
