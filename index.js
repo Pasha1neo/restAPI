@@ -6,7 +6,12 @@ const app = express()
 const server = require('http').createServer(app)
 const authRouter = require('./route/auth')
 const socketController = require('./socket-module')
-const io = require('socket.io')(server)
+const io = require('socket.io')(server, {
+    cors: {
+        origin: 'https://project-adaptive-server.herokuapp.com/',
+        methods: ['GET', 'POST'],
+    },
+})
 app.use(express.json())
 app.use(cors())
 app.use('/api/auth', authRouter)
