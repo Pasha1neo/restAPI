@@ -7,7 +7,7 @@
 		"start": "node index",
 		"index": "node index"
 	},
-	"author": "",
+	"author": "pasha1neo",
 	"license": "ISC",
 	"dependencies": {
 		"bcrypt": "^5.0.1",
