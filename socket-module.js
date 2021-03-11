@@ -7,6 +7,7 @@ module.exports = (socket, io) => {
     socket.on('message', (msg) => {
         const message = {mid: nanoid(4), message: msg.message, login: msg.login}
         localdb.get('messages').push(message)
+        console.log(message)
         io.emit('message', message)
     })
     socket.on('upload_message', (dataUpload) => {
