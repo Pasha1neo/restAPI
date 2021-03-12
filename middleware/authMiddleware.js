@@ -7,8 +7,7 @@ module.exports = (req, res, next) => {
     }
     try {
         const userId = req.headers.authorization.split(' ')[1]
-
-        if (!userId) {
+        if (userId == 'null') {
             return res
                 .status(200)
                 .json({resultcode: 101, message: 'Необходимо авторизироваться снова'})

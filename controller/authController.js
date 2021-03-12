@@ -87,6 +87,11 @@ class AuthController {
     async Auth(req, res) {
         try {
             const user = await UserModel.findOne({_id: req.user.id})
+            if (!user) {
+                res.json({
+                    resultcode: 101,
+                })
+            }
             const token = jwt.sign({id: user.id}, SECRETKEY, {expiresIn: '5h'})
             res.json({
                 resultcode: 200,
