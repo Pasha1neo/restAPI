@@ -28,7 +28,6 @@ function socketModule(io) {
         next()
     })
     io.on('connection', (socket) => {
-        console.log('подключено')
         sessionStore.saveSession(socket.sessionID, {
             userID: socket.userID,
             username: socket.username,
