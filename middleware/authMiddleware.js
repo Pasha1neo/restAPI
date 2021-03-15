@@ -16,6 +16,6 @@ module.exports = (req, res, next) => {
         req.user = {id: decodedUserId.id}
         next()
     } catch (error) {
-        return res.status(200).json({resultcode: 100, message: 'Ошибка авторизации на сервере'})
+        return res.status(200).json({resultcode: 101, message: 'Необходимо авторизироваться снова'})
     }
 }
