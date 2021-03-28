@@ -55,6 +55,7 @@ class AuthController {
     async SignIn(req, res) {
         try {
             const {login, password, rememberMe} = req.body
+
             const user = await UserModel.findOne({login})
             if (!user) {
                 return res
