@@ -15,14 +15,15 @@ app.use('/api/auth', authRouter)
 const start = async () => {
     try {
         await mongoose.connect(
-            'mongodb+srv://Pasha1neo:pasha1neo@cluster0.lwubz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+            'mongodb+srv://Pasha1neo:<password>@cluster0.lwubz.mongodb.net/myFirstDatabase',
             {
                 useUnifiedTopology: true,
                 useNewUrlParser: true,
+                retryWrites: true,
             }
         )
-        app.send('БД запущена')
         socketModule(io)
+        app.send('БД запущена')
     } catch (error) {
         console.log(error)
     }
