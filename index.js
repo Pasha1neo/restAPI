@@ -8,7 +8,7 @@ const {socketModule} = require('./socket-module')
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {
-        origin: 'https://project-adaptive.herokuapp.com/',
+        origin: 'https://project-adaptive.herokuapp.com',
         methods: ['GET', 'POST'],
     },
 })
