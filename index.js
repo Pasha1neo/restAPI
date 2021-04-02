@@ -28,7 +28,6 @@ const start = async () => {
             }
         )
         socketModule(io)
-        app.send('БД запущена')
     } catch (error) {
         console.log(error)
     }
