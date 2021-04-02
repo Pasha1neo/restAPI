@@ -15,7 +15,7 @@ app.use('/api/auth', authRouter)
 const start = async () => {
     try {
         await mongoose.connect(
-            'mongodb+srv://Pasha1neo:<password>@cluster0.lwubz.mongodb.net/projectAdaptive',
+            'mongodb+srv://Pasha1neo:<password>@cluster0.lwubz.mongodb.net/users',
             {
                 useUnifiedTopology: true,
                 useNewUrlParser: true,
