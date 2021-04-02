@@ -35,6 +35,7 @@ const start = async () => {
 start()
 server.listen(PORT, (err) => {
     if (err) {
-        throw Error(err)
+        console.log('ошибка')
+        // throw Error(err)
     }
 })
