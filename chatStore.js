@@ -1,6 +1,10 @@
 const _ = require('lodash')
 const {nanoid} = require('nanoid')
-
+function getTime() {
+    const data = new Date().toLocaleString('ru-RU')
+    const data1 = data.split(',')
+    return {ymd: data1[0], hm: data1[1].slice(1, 6)}
+}
 class ChatStore {
     constructor() {
         this._UsersData = []
@@ -86,7 +90,13 @@ class ChatStore {
     }
     message(fid, tid, msg) {
         try {
-            const message = {mid: nanoid(4), from: fid, message: msg}
+            const message = {
+                mid: nanoid(4),
+                from: fid,
+                message: msg,
+                read: false,
+                time: getTime(),
+            }
             if (tid !== 'chat') {
                 this._checkDialog(fid, tid)
                 this._setMessage(fid, tid, message)
@@ -101,11 +111,32 @@ class ChatStore {
         }
     }
     connect(id, connected) {
-        const connect = this._getUser(id)
-        if (connected === connect.connected) {
+        const user = this._getUser(id)
+        if (connected === user.connected) {
             return null
         }
-        return (connect.connected = connected)
+        return (user.connected = connected)
+    }
+    _getMessageByMid(fid, wid, mid) {
+        return _.find(this._getDialog(fid, wid).messages, {mid: mid})
+    }
+    setMessageText(fid, wid, mid, message) {
+        try {
+            this._getMessageByMid(fid, wid, mid).message = message
+        } catch (error) {
+            console.log('ошибка данные =', fid, wid, mid, message)
+        }
+    }
+    setMessageTextInGlobalChat(mid, message) {
+        _.find(this._GlobalChat.messages, {mid}).message = message
+    }
+    setMessageRead(fid, wid, mid) {
+        if (wid === 'chat') {
+            _.find(this._GlobalChat.messages, {mid}).read = true
+        } else {
+            this._getMessageByMid(fid, wid, mid).read = true
+            this._getMessageByMid(wid, fid, mid).read = true
+        }
     }
 }
 module.exports = {ChatStore}
