@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const express = require('express')
 const app = express()
 const authRouter = require('./route/auth')
-const {socketModule} = require('./socket-module')
+const {socketModule} = require('./controller/socket-module')
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {

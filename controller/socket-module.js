@@ -1,6 +1,6 @@
 const crypto = require('crypto')
-const {InMemorySessionStore} = require('./sessionstore')
-const {ChatStore} = require('./chatstore')
+const {InMemorySessionStore} = require('../store/sessionstore')
+const {ChatStore} = require('../store/chatstore')
 const randomId = () => crypto.randomBytes(8).toString('hex')
 const sessionStore = new InMemorySessionStore()
 const db = new ChatStore()
