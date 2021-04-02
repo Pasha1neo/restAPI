@@ -6,7 +6,12 @@ const app = express()
 const authRouter = require('./route/auth')
 const {socketModule} = require('./socket-module')
 const server = require('http').createServer(app)
-const io = require('socket.io')(server)
+const io = require('socket.io')(server, {
+    cors: {
+        origin: 'https://project-adaptive.herokuapp.com',
+        methods: ['GET', 'POST'],
+    },
+})
 app.use(express.json())
 app.use(cors())
 app.use('/api/auth', authRouter)
@@ -15,7 +20,7 @@ app.use('/api/auth', authRouter)
 const start = async () => {
     try {
         await mongoose.connect(
-            'mongodb+srv://Pasha1neo:<password>@cluster0.lwubz.mongodb.net/users',
+            'mongodb+srv://Pasha1neo:pasha1neo@cluster0.lwubz.mongodb.net/users',
             {
                 useUnifiedTopology: true,
                 useNewUrlParser: true,
