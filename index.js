@@ -21,7 +21,7 @@ const start = async () => {
                 useNewUrlParser: true,
             }
         )
-        console.log('Бд запущена')
+        app.send('БД запущена')
         socketModule(io)
     } catch (error) {
         console.log(error)
