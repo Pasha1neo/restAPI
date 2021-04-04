@@ -94,7 +94,7 @@ class ChatStore {
                 mid: nanoid(4),
                 from: fid,
                 message: msg,
-                read: false,
+                read: fid === tid ? true : false,
                 time: getTime(),
             }
             if (tid !== 'chat') {

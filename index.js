@@ -8,7 +8,7 @@ const {socketModule} = require('./controller/socket-module')
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {
-        origin: 'https://project-adaptive.herokuapp.com',
+        origin: 'http://localhost:3000',
         methods: ['GET', 'POST'],
     },
 })
@@ -19,14 +19,11 @@ app.use('/api/auth', authRouter)
 //воспользоваться штуками из книги (телефон)
 const start = async () => {
     try {
-        await mongoose.connect(
-            'mongodb+srv://Pasha1neo:pasha1neo@cluster0.lwubz.mongodb.net/users',
-            {
-                useUnifiedTopology: true,
-                useNewUrlParser: true,
-                retryWrites: true,
-            }
-        )
+        await mongoose.connect('mongodb://127.0.0.1:27017/project-adaptive', {
+            useUnifiedTopology: true,
+            useNewUrlParser: true,
+            retryWrites: true,
+        })
         socketModule(io)
     } catch (error) {
         console.log(error)
@@ -35,7 +32,6 @@ const start = async () => {
 start()
 server.listen(PORT, (err) => {
     if (err) {
-        console.log('ошибка')
-        // throw Error(err)
+        throw Error(err)
     }
 })

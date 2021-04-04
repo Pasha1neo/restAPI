@@ -98,7 +98,8 @@ function socketModule(io) {
             if (wid === 'chat') {
                 io.emit('MESSAGE:READED', {wid, mid})
             } else {
-                socket.to(wid).emit('MESSAGE:READED', {wid, mid})
+                socket.to(wid).emit('MESSAGE:READED', {wid: socket.userID, mid})
+                socket.emit('MESSAGE:READED', {wid, mid})
             }
             db.setMessageRead(socket.userID, wid, mid)
         })
