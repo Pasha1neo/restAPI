@@ -103,6 +103,17 @@ function socketModule(io) {
             }
             db.setMessageRead(socket.userID, wid, mid)
         })
+        socket.on('MESSAGE:DELETE', (wid, mid) => {
+            db.deleteMessage(socket.userID, wid, mid)
+            if (wid === 'chat') {
+                io.emit('MESSAGE:DELETED', {wid, mid})
+            } else if (wid === socket.userID) {
+                socket.emit('MESSAGE:DELETED', {wid, mid})
+            } else {
+                socket.to(wid).emit('MESSAGE:DELETED', {wid: socket.userID, mid})
+                socket.emit('MESSAGE:DELETED', {wid, mid})
+            }
+        })
     })
 }
 module.exports.socketModule = socketModule

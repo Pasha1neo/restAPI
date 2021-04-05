@@ -138,5 +138,15 @@ class ChatStore {
             this._getMessageByMid(wid, fid, mid).read = true
         }
     }
+    deleteMessage(fid, wid, mid) {
+        if (wid === 'chat') {
+            _.pullAllBy(this._GlobalChat.messages, [{mid}], 'mid')
+        } else if (fid === wid) {
+            _.pullAllBy(this._getDialog(fid, wid).messages, [{mid}], 'mid')
+        } else {
+            _.pullAllBy(this._getDialog(fid, wid).messages, [{mid}], 'mid')
+            _.pullAllBy(this._getDialog(wid, fid).messages, [{mid}], 'mid')
+        }
+    }
 }
 module.exports = {ChatStore}
