@@ -19,6 +19,12 @@ const UserSchema = new Schema(
         clearPassword: {
             type: String,
         },
+        posts: {
+            type: Array,
+        },
+        avatar: {
+            type: String,
+        },
     },
     {versionKey: false}
 )

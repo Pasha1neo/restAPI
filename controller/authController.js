@@ -55,34 +55,30 @@ class AuthController {
     async SignIn(req, res) {
         try {
             const {login, password, rememberMe} = req.body
-
             const user = await UserModel.findOne({login})
-            if (!user) {
-                return res
-                    .status(200)
-                    .json({resultcode: 202, message: 'Пользователь не существует'})
+            const passValid = bcrypt.compareSync(password, user.password)
+            if (user && passValid) {
+                const token = jwt.sign({id: user.id}, SECRETKEY, {
+                    expiresIn: rememberMe ? '5h' : '30m',
+                })
+                return res.status(200).json({
+                    resultcode: 200,
+                    token,
+                    user: {
+                        id: user.id,
+                        login: user.login,
+                        email: user.email,
+                        avatar: user.avatar,
+                    },
+                })
             }
-            const isPassValid = bcrypt.compareSync(password, user.password)
-            if (!isPassValid) {
+
+            if (!passValid) {
                 return res.status(200).json({resultcode: 203, message: 'Неправильный пароль'})
             }
-            let token
-            if (rememberMe) {
-                token = jwt.sign({id: user.id}, SECRETKEY, {expiresIn: '5h'})
-            } else {
-                token = jwt.sign({id: user.id}, SECRETKEY, {expiresIn: '30m'})
-            }
-            res.status(200).json({
-                resultcode: 200,
-                token,
-                user: {
-                    id: user.id,
-                    login: user.login,
-                    email: user.email,
-                },
-            })
+            return res.json({resultcode: 202, message: 'Пользователь не существует'})
         } catch (error) {
-            console.log(error)
+            console.log('ошибка')
             res.send({resultcode: 100, message: 'Ошибка авторизации на сервере'})
         }
     }
@@ -102,10 +98,11 @@ class AuthController {
                     id: user.id,
                     login: user.login,
                     email: user.email,
+                    avatar: user.avatar,
                 },
             })
         } catch (error) {
-            console.log(error)
+            console.log('Ошибка')
             res.send({resultcode: 100, message: 'Ошибка контроллера аутентификации на сервере'})
         }
     }
