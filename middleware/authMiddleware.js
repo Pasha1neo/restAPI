@@ -16,6 +16,7 @@ module.exports = (req, res, next) => {
         req.user = {id: decodedUserId.id}
         next()
     } catch (error) {
+        console.log('ошибка в мидлПО')
         return res.status(200).json({resultcode: 101, message: 'Необходимо авторизироваться снова'})
     }
 }
