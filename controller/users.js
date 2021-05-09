@@ -1,10 +1,9 @@
-const UserModel = require('../model/User')
-const {nanoid} = require('nanoid')
+const User = require('../model/user')
 
 class UsersController {
-    async setNickname(req, res) {
+    async getUsers(req, res) {
         try {
-            const users = await UserModel.find({}, 'id nickname login avatar')
+            const users = await User.find({}, 'id nickname login avatar')
             return res.status(200).send(users)
         } catch (error) {
             console.log('Ошибка при выводе списка пользователей')

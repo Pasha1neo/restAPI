@@ -1,8 +1,8 @@
-const express = require('express')
-const UsersController = require('../controller/usersController')
-const authMiddleware = require('../middleware/authMiddleware')
-const router = express.Router()
+const user = require('../controller/users')
+const passport = require('passport')
+const {Router} = require('express')
+const router = Router()
 
-router.get('/', UsersController.setNickname)
+router.get('/', user.getUsers)
 
 module.exports = router

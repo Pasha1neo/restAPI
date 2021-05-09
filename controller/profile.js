@@ -1,4 +1,4 @@
-const UserModel = require('../model/User')
+const UserModel = require('../model/user')
 const {nanoid} = require('nanoid')
 const fs = require('fs')
 
@@ -16,7 +16,7 @@ class ProfileController {
     async setNickname(req, res) {
         try {
             const {nickname} = req.body
-            const user = await UserModel.findById(req.user.id)
+            const user = await UserModel.findById(req.user)
             if (!user) {
                 return res.send({resultcode: 101, message: 'Пользователь не найден'})
             }
@@ -25,7 +25,7 @@ class ProfileController {
             return res.status(200).send({resultcode: 200, nickname: user.nickname})
         } catch (error) {
             console.log('ошибка сет никнейма')
-            return res.send({resultcode: 100, message: 'Ошибка создания поста на сервере'})
+            return res.send({resultcode: 100, message: 'Ошибка изменения никнейма'})
         }
     }
 
@@ -49,7 +49,7 @@ class ProfileController {
 
     async getPosts(req, res) {
         try {
-            await UserModel.findById(req.body.id).exec((err, user) => {
+            await UserModel.findById(req.user).exec((err, user) => {
                 if (!user) {
                     return res.json({resultcode: 101, message: 'Пользователь не найден'})
                 }
@@ -66,7 +66,7 @@ class ProfileController {
             const file = req.files?.file
             if (file) {
                 const type = file.mimetype
-                const user = await UserModel.findById(req.user.id)
+                const user = await UserModel.findById(req.user)
                 const isAvatar = fs.existsSync(pathAvatar(user.avatar))
                 if (isAvatar) {
                     fs.unlinkSync(pathAvatar(user.avatar))
@@ -84,7 +84,7 @@ class ProfileController {
 
     async deleteAvatar(req, res) {
         try {
-            const user = await UserModel.findById(req.user.id)
+            const user = await UserModel.findById(req.user)
             fs.unlinkSync(pathAvatar(user.avatar))
             user.avatar = null
             await user.save()

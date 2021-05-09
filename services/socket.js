@@ -5,7 +5,7 @@ const randomId = () => crypto.randomBytes(8).toString('hex')
 const sessionStore = new InMemorySessionStore()
 const db = new ChatStore()
 
-function socketModule(io) {
+function socketService(io) {
     io.use((socket, next) => {
         const sessionID = socket.handshake.auth.sessionID
         if (sessionID) {
@@ -116,4 +116,4 @@ function socketModule(io) {
         })
     })
 }
-module.exports.socketModule = socketModule
+module.exports = socketService

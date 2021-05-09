@@ -1,12 +1,12 @@
-const express = require('express')
-const profileController = require('../controller/profileController')
-const authMiddleware = require('../middleware/authMiddleware')
-const router = express.Router()
+const profile = require('../controller/profile')
+const {Router} = require('express')
+const router = Router()
+const passport = require('passport')
 
-router.post('/nickname', authMiddleware, profileController.setNickname)
-router.post('/', authMiddleware, profileController.getPosts)
-router.post('/create', authMiddleware, profileController.createPost)
-router.post('/avatar', authMiddleware, profileController.uploadAvatar)
-router.delete('/avatar', authMiddleware, profileController.deleteAvatar)
+router.post('/nickname', passport.authenticate('jwt', {session: false}), profile.setNickname)
+router.post('/', profile.getPosts)
+router.post('/create', passport.authenticate('jwt', {session: false}), profile.createPost)
+router.post('/avatar', passport.authenticate('jwt', {session: false}), profile.uploadAvatar)
+router.delete('/avatar', passport.authenticate('jwt', {session: false}), profile.deleteAvatar)
 
 module.exports = router
