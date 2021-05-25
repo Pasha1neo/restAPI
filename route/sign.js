@@ -4,8 +4,8 @@ const passport = require('passport')
 const {Router} = require('express')
 const router = Router()
 
-router.post('/signup', sign.SignUp)
-router.post('/signin', passport.authenticate('local', {session: false}), sign.SignIn)
+router.post('/up', sign.up)
+router.post('/in', passport.authenticate('local', {session: false}), sign.in)
 router.get('/refresh', token.refresh)
-router.get('/', passport.authenticate('jwt', {session: false}), sign.Auth)
+router.get('/', passport.authenticate('jwt', {session: false}), sign.auth)
 module.exports = router

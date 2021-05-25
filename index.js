@@ -9,7 +9,7 @@ const app = express()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {
-        origin: 'http://localhost:3000',
+        origin: ['http://localhost:3000', 'http://127.0.0.1'],
         methods: ['GET', 'POST'],
     },
 })
@@ -35,9 +35,9 @@ app.use(passport.initialize())
 passportModule(passport)
 
 //----------------------------------------- END OF MIDDLEWARE---------------------------------------------------
-app.use('/api/sign', signRouter)
-app.use('/api/profile', profileRouter)
-app.use('/api/users', usersRouter)
+app.use('/sign', signRouter)
+app.use('/profile', profileRouter)
+app.use('/users', usersRouter)
 
 //----------------------------------------- END OF ROUTES---------------------------------------------------
 
@@ -52,6 +52,6 @@ server.listen(PORT, () => {
         socketService(io)
         console.log(`http://localhost:${PORT}`)
     } catch (error) {
-        console.log(error)
+        console.log('index')
     }
 })

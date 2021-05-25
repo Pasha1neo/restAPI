@@ -1,90 +1,80 @@
-const UserModel = require('../model/user')
+const {User} = require('../model/user')
+const {Post} = require('../model/user')
 const {nanoid} = require('nanoid')
 const fs = require('fs')
 
-function getTime() {
+const time = (() => {
     const data = new Date().toLocaleString('ru-RU')
     const data1 = data.split(',')
     return {data: data1[0], time: data1[1].slice(1, 6)}
-}
+})()
 
 function pathAvatar(name) {
     return `${__dirname}\\..\\static\\${name}`
 }
 
 class ProfileController {
+    async createPost(req, res) {
+        try {
+            const {text} = req.body
+            const user = await User.findById(req.user, 'posts')
+            if (!user) return res.send(false)
+            const post = await Post.create({text, fid: req.user, ...time})
+            user.posts.push(post._id)
+            await user.save()
+            return res.send(post)
+        } catch (error) {
+            console.log('controllers/profile/createPost')
+            return res.send(false)
+        }
+    }
+
     async setNickname(req, res) {
         try {
             const {nickname} = req.body
-            const user = await UserModel.findById(req.user)
-            if (!user) {
-                return res.send({resultcode: 101, message: 'Пользователь не найден'})
-            }
+            const user = await User.findById(req.user, 'nickname')
+            if (!user) return res.send(false)
             user.nickname = nickname
-            user.save()
-            return res.status(200).send({resultcode: 200, nickname: user.nickname})
+            await user.save()
+            return res.send(nickname)
         } catch (error) {
-            console.log('ошибка сет никнейма')
-            return res.send({resultcode: 100, message: 'Ошибка изменения никнейма'})
-        }
-    }
-
-    async createPost(req, res) {
-        try {
-            const {author, content, fid} = req.body
-            const user = await UserModel.findById(fid)
-            if (!user) {
-                return res.send({resultcode: 101, message: 'Пользователь не найден'})
-            }
-            const TIME = getTime()
-            const post = {content, pid: nanoid(6), author, fid, ...TIME}
-            user.posts.push(post)
-            user.save()
-            return res.status(200).send({resultcode: 200, message: 'Пост создан', post})
-        } catch (error) {
-            console.log('ошибка создания поста')
-            return res.send({resultcode: 100, message: 'Ошибка создания поста на сервере'})
-        }
-    }
-
-    async getPosts(req, res) {
-        try {
-            await UserModel.findById(req.user).exec((err, user) => {
-                if (!user) {
-                    return res.json({resultcode: 101, message: 'Пользователь не найден'})
-                }
-                return res.status(200).json({resultcode: 200, posts: user.posts})
-            })
-        } catch (error) {
-            console.log('ошибка получения постов')
-            res.send({resultcode: 100, message: 'Ошибка получения данных на сервере'})
+            console.log('controllers/profile/setNickname')
+            return res.send(false)
         }
     }
 
     async uploadAvatar(req, res) {
         try {
             const file = req.files?.file
-            if (file) {
-                const type = file.mimetype
-                const user = await UserModel.findById(req.user)
-                const isAvatar = fs.existsSync(pathAvatar(user.avatar))
-                if (isAvatar) {
-                    fs.unlinkSync(pathAvatar(user.avatar))
-                }
-                user.avatar = nanoid(3) + `.${type.split('/')[1]}`
-                file.mv(pathAvatar(user.avatar))
-                await user.save()
-                return res.json({message: 'Успешная загрузка', avatar: user.avatar})
-            }
+            if (!file) return res.send(false)
+            const type = file.mimetype
+            const user = await User.findById(req.user, 'avatar')
+            const isAvatar = fs.existsSync(pathAvatar(user.avatar))
+            if (isAvatar) fs.unlinkSync(pathAvatar(user.avatar))
+            const avatar = (user.avatar = nanoid(4) + `.${type.split('/')[1]}`)
+            await file.mv(pathAvatar(avatar))
+            await user.save()
+            return res.send(avatar)
         } catch (error) {
-            console.log('ошибка загрузки аватарки')
-            return res.json({message: 'Ошибка загрузки аватарки на сервере'})
+            console.log('controllers/profile/uploadAvatar')
+            return res.send(false)
+        }
+    }
+
+    async getPosts(req, res) {
+        try {
+            await User.findById(req.user)
+            if (!user) return res.json(false)
+            return res.json(false)
+        } catch (error) {
+            console.log('ошибка получения постов')
+            res.send({resultcode: 100, message: 'Ошибка получения данных на сервере'})
         }
     }
 
     async deleteAvatar(req, res) {
         try {
-            const user = await UserModel.findById(req.user)
+            const user = await User.findById(req.user)
             fs.unlinkSync(pathAvatar(user.avatar))
             user.avatar = null
             await user.save()

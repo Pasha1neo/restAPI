@@ -1,4 +1,4 @@
-const User = require('../model/user')
+const {User} = require('../model/user')
 const LocalStrategy = require('passport-local').Strategy
 const CookieStrategy = require('passport-cookie')
 const JwtStrategy = require('passport-jwt').Strategy
@@ -17,26 +17,31 @@ module.exports = (passport) => {
                 usernameField: 'login',
             },
             async (username, password, done) => {
-                const user = await User.findOne({login: username})
+                const user = await User.findOne(
+                    {login: username},
+                    'login email nickname posts avatar password'
+                ).populate({
+                    path: 'posts',
+                    populate: {path: 'fid', select: 'login nickname'},
+                })
                 if (!user) return done(null, false)
-                const result = bcrypt.compare(password, user.password)
+                const result = await bcrypt.compare(password, user.password)
                 if (result === false) return done(null, false)
-                const data = {
-                    id: user._id,
+                return done(null, {
+                    userId: user._id,
                     login: user.login,
                     email: user.email,
                     nickname: user?.nickname,
-                    posts: user?.posts,
                     avatar: user?.avatar,
-                }
-                return done(null, data)
+                    posts: user?.posts,
+                })
             }
         )
     )
     passport.use(
         new CookieStrategy({cookieName: 'userid'}, async (token, done) => {
             try {
-                const user = await User.findById(token.userId)
+                const user = await User.findById(token.userId).populate('posts')
                 if (user) return done(null, user)
                 else return done(null, false)
             } catch (error) {
@@ -48,7 +53,7 @@ module.exports = (passport) => {
         new JwtStrategy(jwtOptions, (jwt_payload, done) => {
             User.findById(jwt_payload.userId, '_id', (err, user) => {
                 if (err) return done(err, false)
-                if (user) return done(null, user)
+                if (user) return done(null, user._id)
                 return done(null, false)
             })
         })
