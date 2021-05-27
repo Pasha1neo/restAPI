@@ -1,5 +1,4 @@
-const {User} = require('../model/user')
-const {Post} = require('../model/user')
+const {User, Post} = require('../model/user')
 const {nanoid} = require('nanoid')
 const fs = require('fs')
 
