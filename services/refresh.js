@@ -8,32 +8,21 @@ const verifyToken = (token) => {
 }
 module.exports.verifyToken = verifyToken
 
-const tokens = {
-    access: {
-        type: 'access',
-        expiresIn: '1h',
-    },
-    refresh: {
-        type: 'refresh',
-        expiresIn: '7d',
-    },
-}
-
 const AccessToken = (userId) => {
     const payload = {
         userId,
-        type: tokens.access.type,
+        type: 'access',
     }
-    return jwt.sign(payload, secret, {expiresIn: tokens.access.expiresIn})
+    return jwt.sign(payload, secret, {expiresIn: '1h'})
 }
 const RefreshToken = () => {
     const payload = {
         id: nanoid(10),
-        type: tokens.refresh.type,
+        type: 'refresh',
     }
     return {
         id: payload.id,
-        token: jwt.sign(payload, secret, {expiresIn: tokens.refresh.expiresIn}),
+        token: jwt.sign(payload, secret, {expiresIn: '7d'}),
     }
 }
 const replaceDbRefreshToken = async (tokenId, userId) => {

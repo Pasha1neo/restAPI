@@ -1,5 +1,8 @@
 const socketioJwt = require('socketio-jwt')
-const {User, Dialog, Message} = require('../model/user')
+const User = require('../model/user')
+const Message = require('../model/message')
+const Dialog = require('../model/dialog')
+
 const time = () => {
     const data = new Date().toLocaleString('ru-RU')
     const data1 = data.split(',')
@@ -198,4 +201,5 @@ function socketService(io) {
         })
     })
 }
+
 module.exports = socketService

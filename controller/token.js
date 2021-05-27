@@ -1,8 +1,8 @@
+const Token = require('../model/token')
 const {verifyToken} = require('../services/refresh')
 const {refresh} = require('../services/refresh')
-const Token = require('../model/token')
 
-class TokenController {
+class tokenController {
     async refresh(req, res, next) {
         try {
             const {token} = req.cookies?.token
@@ -21,4 +21,4 @@ class TokenController {
         }
     }
 }
-module.exports = new TokenController()
+module.exports = new tokenController()

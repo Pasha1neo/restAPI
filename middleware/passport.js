@@ -1,4 +1,4 @@
-const {User} = require('../model/User')
+const User = require('../model/user')
 const LocalStrategy = require('passport-local').Strategy
 const CookieStrategy = require('passport-cookie')
 const JwtStrategy = require('passport-jwt').Strategy
@@ -10,7 +10,7 @@ const jwtOptions = {
     secretOrKey: 'pasha1neo',
 }
 
-module.exports = (passport) => {
+const Passport = (passport) => {
     passport.use(
         new LocalStrategy(
             {
@@ -59,3 +59,5 @@ module.exports = (passport) => {
         })
     )
 }
+
+module.exports = Passport

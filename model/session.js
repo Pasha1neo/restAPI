@@ -1,6 +1,6 @@
 const {Schema, model} = require('mongoose')
 
-const SessionSchema = new Schema(
+const sessionSchema = new Schema(
     {
         userId: {
             type: String,
@@ -11,4 +11,4 @@ const SessionSchema = new Schema(
     {versionKey: false}
 )
 
-module.exports = model('session', SessionSchema)
+module.exports = model('session', sessionSchema)

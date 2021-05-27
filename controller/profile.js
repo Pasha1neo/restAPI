@@ -1,12 +1,13 @@
-const {User, Post} = require('../model/user')
+const User = require('../model/user')
+const Post = require('../model/post')
 const {nanoid} = require('nanoid')
 const fs = require('fs')
 
-const time = (() => {
+const time = () => {
     const data = new Date().toLocaleString('ru-RU')
     const data1 = data.split(',')
     return {data: data1[0], time: data1[1].slice(1, 6)}
-})()
+}
 
 function pathAvatar(name) {
     return `${__dirname}\\..\\static\\${name}`
@@ -18,7 +19,7 @@ class ProfileController {
             const {text} = req.body
             const user = await User.findById(req.user, 'posts')
             if (!user) return res.send(false)
-            const post = await Post.create({text, fid: req.user, ...time})
+            const post = await Post.create({text, fid: req.user, ...time()})
             user.posts.push(post._id)
             await user.save()
             return res.send(post)

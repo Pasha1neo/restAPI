@@ -1,6 +1,7 @@
+const User = require('../model/user')
 const bcrypt = require('bcrypt')
-const {User} = require('../model/User')
 const {refresh} = require('../services/refresh')
+
 class sign {
     async up(req, res) {
         try {

@@ -1,6 +1,6 @@
 const {Schema, model} = require('mongoose')
 
-const TokenSchema = new Schema(
+const tokenSchema = new Schema(
     {
         tokenId: String,
         userId: String,
@@ -8,4 +8,4 @@ const TokenSchema = new Schema(
     {versionKey: false}
 )
 
-module.exports = model('token', TokenSchema)
+module.exports = model('token', tokenSchema)

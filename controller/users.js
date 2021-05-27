@@ -1,6 +1,6 @@
-const {User} = require('../model/User')
+const User = require('../model/user')
 
-class UsersController {
+class usersController {
     async getUsers(req, res) {
         try {
             const users = await User.find({}, 'id nickname login avatar')
@@ -12,4 +12,4 @@ class UsersController {
     }
 }
 
-module.exports = new UsersController()
+module.exports = new usersController()
