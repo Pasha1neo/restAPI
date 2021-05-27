@@ -10,6 +10,7 @@ const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {
         origin: [
+            'https://project-adaptive.herokuapp.com',
             'http://localhost:3000',
             'http://127.0.0.1:3000',
             'http://192.168.0.100:3000',
@@ -35,6 +36,7 @@ app.use(fileUpload())
 app.use(
     cors({
         origin: [
+            'https://project-adaptive.herokuapp.com',
             'http://localhost:3000',
             'http://127.0.0.1:3000',
             'http://192.168.0.100:3000',
@@ -57,12 +59,15 @@ app.use('/users', usersRouter)
 
 server.listen(PORT, () => {
     try {
-        mongoose.connect('mongodb://localhost/project-adaptive', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useCreateIndex: true,
-            useFindAndModify: false,
-        })
+        mongoose.connect(
+            'mongodb+srv://Pasha1neo:pasha1neo@project-adaptive.lwubz.mongodb.net/project-adaptive?retryWrites=true&w=majority',
+            {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                useCreateIndex: true,
+                useFindAndModify: false,
+            }
+        )
         socketService(io)
         console.log(`http://localhost:${PORT}`)
     } catch (error) {
