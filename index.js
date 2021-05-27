@@ -10,6 +10,7 @@ const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {
         origin: [
+            'https://gexon.herokuapp.com',
             'https://project-adaptive.herokuapp.com',
             'http://localhost:3000',
             'http://127.0.0.1:3000',
@@ -36,6 +37,7 @@ app.use(fileUpload())
 app.use(
     cors({
         origin: [
+            'https://gexon.herokuapp.com',
             'https://project-adaptive.herokuapp.com',
             'http://localhost:3000',
             'http://127.0.0.1:3000',
