@@ -11,7 +11,7 @@ module.exports.verifyToken = verifyToken
 const tokens = {
     access: {
         type: 'access',
-        expiresIn: '10m',
+        expiresIn: '1h',
     },
     refresh: {
         type: 'refresh',

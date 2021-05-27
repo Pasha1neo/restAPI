@@ -9,7 +9,14 @@ const app = express()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {
-        origin: ['http://localhost:3000', 'http://127.0.0.1'],
+        origin: [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://192.168.0.100:3000',
+            'http://192.168.0.101:3000',
+            'http://192.168.0.102:3000',
+            'http://192.168.0.103:3000',
+        ],
         methods: ['GET', 'POST'],
     },
 })
@@ -27,7 +34,14 @@ app.use(express.json())
 app.use(fileUpload())
 app.use(
     cors({
-        origin: ['http://localhost:3000', 'http://127.0.0.1'],
+        origin: [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://192.168.0.100:3000',
+            'http://192.168.0.101:3000',
+            'http://192.168.0.102:3000',
+            'http://192.168.0.103:3000',
+        ],
         credentials: true,
     })
 )

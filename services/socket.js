@@ -1,14 +1,10 @@
 const socketioJwt = require('socketio-jwt')
 const {User, Dialog, Message} = require('../model/user')
-const Session = require('../model/session')
-var fs = require('fs')
-var util = require('util')
-const mongoose = require('mongoose')
-const time = (() => {
+const time = () => {
     const data = new Date().toLocaleString('ru-RU')
     const data1 = data.split(',')
     return {data: data1[0], time: data1[1].slice(1, 6)}
-})()
+}
 
 function socketService(io) {
     io.use(
@@ -36,21 +32,19 @@ function socketService(io) {
         }
     })
 
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
         socket.on('disconnect', async () => {
             const user = await User.findById(socket.userId)
             user.onlineStatus = false
             user.save()
             socket.broadcast.emit('USER:DISCONNECTED', {
-                userId: socket.userId,
+                _id: socket.userId,
                 onlineStatus: false,
             })
         })
         socket.join(socket.userId)
-        socket.broadcast.emit('USER:CONNECTED', {
-            userId: socket.userId,
-            onlineStatus: true,
-        })
+        const user = await User.findById(socket.userId, 'login nickname onlineStatus avatar')
+        socket.broadcast.emit('USER:CONNECTED', user)
         socket.on('GET:DATA:USERS', async (uploadData) => {
             const users = await User.find({}, 'login nickname onlineStatus avatar')
             uploadData(users)
@@ -75,7 +69,7 @@ function socketService(io) {
                     fid: socket.userId,
                     text: msg,
                     read: false,
-                    ...time,
+                    ...time(),
                 })
                 const user = await User.findOne(
                     {_id: socket.userId},
@@ -139,130 +133,69 @@ function socketService(io) {
                     await user.save()
                 }
             } catch (error) {
-                console.log(error)
                 console.log('socket/SEND:MESSAGE')
+            }
+        })
+        socket.on('READ:MESSAGE', async ({wid, mid}) => {
+            if (wid !== socket.userId) {
+                await Message.findByIdAndUpdate(mid, {read: true})
+                socket.to(wid).emit('READED:MESSAGE', {wid: socket.userId, mid})
+                socket.emit('READED:MESSAGE', {wid, mid})
+            }
+        }) // обновлять не одно сообщение а массив сообщений с помощью updateMany и циклов
+        socket.on('MESSAGE:CHANGE', async ({wid, mid, text}, res) => {
+            await Message.findByIdAndUpdate(mid, {text})
+            if (wid !== socket.userId) {
+                socket.to(wid).emit('MESSAGE:CHANGED', {wid: socket.userId, mid, text})
+            }
+            res({wid, mid, text})
+        })
+        socket.on('MESSAGE:DELETE', async ({wid, mid}, res) => {
+            const user = await User.findById(socket.userId, 'dialogs').populate({
+                path: 'dialogs',
+                match: {wid},
+                select: 'messages',
+                populate: {
+                    path: 'messages',
+                    match: {_id: mid, fid: socket.userId},
+                    select: 'fid',
+                },
+            })
+            const did = user.dialogs[0]?._id
+            const my = user.dialogs[0]?.messages[0]
+            if (did) {
+                const dialog = await Dialog.findById(did)
+                const result = dialog.messages.remove(mid)
+                if (result) {
+                    if (wid !== socket.userId && my) {
+                        const toUser = await User.findById(wid, 'dialogs').populate({
+                            path: 'dialogs',
+                            match: {wid: socket.userId},
+                            select: 'messages',
+                        })
+                        const toDid = toUser.dialogs[0]?._id
+                        if (toDid) {
+                            const toDialog = await Dialog.findById(toDid)
+                            const toResult = toDialog.messages.pull(mid) //--------------
+                            if (toResult) {
+                                await dialog.save()
+                                await toDialog.save()
+                                await Message.findByIdAndRemove(mid)
+                                res({wid, mid})
+                                socket.to(wid).emit('MESSAGE:DELETED', {wid: socket.userId, mid})
+                            }
+                        }
+                    } else if (wid === socket.userId) {
+                        await Message.findByIdAndRemove(mid)
+                        await dialog.save()
+                        res({wid, mid})
+                    } else {
+                        await dialog.save()
+                        res({wid, mid})
+                    }
+                }
             }
         })
     })
 }
 module.exports = socketService
-
-// function nonstart(io) {
-//     io.use((socket, next) => {
-//         const sessionID = socket.handshake.auth.sessionID
-//         if (sessionID) {
-//             const session = sessionStore.findSession(sessionID)
-//             if (session) {
-//                 socket.sessionID = sessionID
-//                 socket.userID = session.userID
-//                 socket.username = session.username
-//                 return next()
-//             }
-//         }
-//         const username = socket.handshake.auth.username
-//         if (!username) {
-//             return next(new Error('invalid username'))
-//         }
-//         socket.sessionID = randomId()
-//         socket.userID = randomId()
-//         socket.username = username
-//         next()
-//     })
-
-//     io.on('connection', (socket) => {
-//         // console.log(socket.decoded_token)
-//         // sessionStore.saveSession(socket.sessionID, {
-//         //     userID: socket.userID,
-//         //     username: socket.username,
-//         //     connected: true,
-//         // })
-
-//         // socket.emit('session', {
-//         //     sessionID: socket.sessionID,
-//         //     userID: socket.userID,
-//         // })
-
-//         // socket.join(socket.userID)
-//         // sessionStore.findAllSessions().forEach((session) => {
-//         //     db.user(session.userID, session.username, session.connected)
-//         // })
-//         // db.connect(socket.userID, true)
-
-//         // socket.on('GET:USERS', (cb) => {
-//         //     cb(db.getUsersData())
-//         // })
-//         // socket.broadcast.emit('USER:CONNECTED', {
-//         //     userID: socket.userID,
-//         //     username: socket.username,
-//         //     connected: true,
-//         // })
-//         // socket.on('GET:MESSAGESDATA', (dataUpload) => {
-//         //     dataUpload(db.getDialogs(socket.userID))
-//         // })
-//         socket.on('SEND:MESSAGE', ({tid, msg}) => {
-//             const message = db.message(socket.userID, tid, msg)
-//             if (socket.userID === tid) {
-//                 socket.emit('NEW:MESSAGE', {wid: socket.userID, message})
-//             } else if (tid === 'chat') {
-//                 io.emit('NEW:MESSAGE', {wid: tid, message})
-//             } else {
-//                 socket.to(tid).emit('NEW:MESSAGE', {wid: socket.userID, message})
-//                 socket.emit('NEW:MESSAGE', {wid: tid, message})
-//             }
-//         })
-//         socket.on('MESSAGE:CHANGE', (wid, mid, message) => {
-//             if (wid === 'chat') {
-//                 db.setMessageTextInGlobalChat(mid, message)
-//                 io.emit('MESSAGE:CHANGED', {wid, mid, message})
-//             } else if (wid === socket.userID) {
-//                 db.setMessageText(socket.userID, wid, mid, message)
-//                 socket.emit('MESSAGE:CHANGED', {wid, mid, message})
-//             } else {
-//                 db.setMessageText(socket.userID, wid, mid, message)
-//                 db.setMessageText(wid, socket.userID, mid, message)
-//                 socket.to(wid).emit('MESSAGE:CHANGED', {wid: socket.userID, mid, message})
-//                 socket.emit('MESSAGE:CHANGED', {wid, mid, message})
-//             }
-//         })
-//         socket.on('disconnect', async () => {
-//             const matchingSockets = await io.in(socket.userID).allSockets()
-//             const isDisconnected = matchingSockets.size === 0
-//             if (isDisconnected) {
-//                 socket.broadcast.emit('USER:DISCONNECTED', {userID: socket.userID, connect: false})
-//                 sessionStore.saveSession(socket.sessionID, {
-//                     userID: socket.userID,
-//                     username: socket.username,
-//                     connected: false,
-//                 })
-//                 db.connect(socket.userID, false)
-//             }
-//         })
-//         socket.on('MESSAGE:READ', (wid, mid) => {
-//             if (wid === 'chat') {
-//                 io.emit('MESSAGE:READED', {wid, mid})
-//             } else {
-//                 socket.to(wid).emit('MESSAGE:READED', {wid: socket.userID, mid})
-//                 socket.emit('MESSAGE:READED', {wid, mid})
-//             }
-//             db.setMessageRead(socket.userID, wid, mid)
-//         })
-//         socket.on('MESSAGE:DELETE', (wid, mid) => {
-//             db.deleteMessage(socket.userID, wid, mid)
-//             if (wid === 'chat') {
-//                 io.emit('MESSAGE:DELETED', {wid, mid})
-//             } else if (wid === socket.userID) {
-//                 socket.emit('MESSAGE:DELETED', {wid, mid})
-//             } else {
-//                 socket.to(wid).emit('MESSAGE:DELETED', {wid: socket.userID, mid})
-//                 socket.emit('MESSAGE:DELETED', {wid, mid})
-//             }
-//         })
-//     })
-// }
-// const crypto = require('crypto')
-// const {InMemorySessionStore} = require('../store/sessionstore')
-// const {ChatStore} = require('../store/chatstore')
-// const randomId = () => crypto.randomBytes(8).toString('hex')
-// const sessionStore = new InMemorySessionStore()
-// const db = new ChatStore()
-// const {nanoid} = require('nanoid')

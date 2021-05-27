@@ -58,5 +58,13 @@ class sign {
             res.send(false)
         }
     }
+    async out(req, res) {
+        try {
+            return res.clearCookie('token').json(true)
+        } catch (error) {
+            res.send(true)
+            console.log('controllers/sign/out')
+        }
+    }
 }
 module.exports = new sign()
