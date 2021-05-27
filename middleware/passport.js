@@ -1,4 +1,4 @@
-const {User} = require('../model/user')
+const {User} = require('../model/User')
 const LocalStrategy = require('passport-local').Strategy
 const CookieStrategy = require('passport-cookie')
 const JwtStrategy = require('passport-jwt').Strategy
