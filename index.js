@@ -62,7 +62,7 @@ server.listen(PORT, async () => {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true,
-            useFindAndModify: true,
+            useFindAndModify: false,
         })
         socketService(io)
         console.log(`http://localhost:${PORT}`)

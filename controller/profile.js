@@ -60,18 +60,6 @@ class ProfileController {
             return res.send(false)
         }
     }
-
-    async getPosts(req, res) {
-        try {
-            await User.findById(req.user)
-            if (!user) return res.json(false)
-            return res.json(false)
-        } catch (error) {
-            console.log('ошибка получения постов')
-            res.send({resultcode: 100, message: 'Ошибка получения данных на сервере'})
-        }
-    }
-
     async deleteAvatar(req, res) {
         try {
             const user = await User.findById(req.user)
@@ -82,6 +70,26 @@ class ProfileController {
         } catch (error) {
             console.log('ошибка удаления аватарки')
             return res.json({message: 'Ошибка удаления аватарки на сервере'})
+        }
+    }
+
+    async getProfile(req, res) {
+        try {
+            const userId = req.params?.userId
+            if (!userId) return res.json(false)
+            const user = await User.findById(userId, 'login nickname posts avatar').populate({
+                path: 'posts',
+                populate: {path: 'fid', select: 'login nickname avatar'},
+            })
+            if (!user) return res.json(false)
+            res.json({
+                userId: user._id,
+                nickname: user?.nickname || user.login,
+                avatar: user?.avatar,
+                posts: user?.posts,
+            })
+        } catch (error) {
+            console.log('profile/getProfile')
         }
     }
 }
