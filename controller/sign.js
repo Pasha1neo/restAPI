@@ -40,7 +40,7 @@ class sign {
                 'login email nickname posts avatar'
             ).populate({
                 path: 'posts',
-                populate: {path: 'fid', select: 'login nickname'},
+                populate: {path: 'fid', select: 'login nickname avatar'},
             })
             if (!user) return res.json(false)
             res.json({

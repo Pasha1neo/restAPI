@@ -12,7 +12,7 @@ const time = () => {
 function socketService(io) {
     io.use(
         socketioJwt.authorize({
-            secret: 'pasha1neo',
+            secret: process.env.SECRET,
             handshake: true,
             auth_header_required: true,
         })
@@ -39,7 +39,7 @@ function socketService(io) {
         socket.on('disconnect', async () => {
             const user = await User.findById(socket.userId)
             user.onlineStatus = false
-            user.save()
+            await user.save()
             socket.broadcast.emit('USER:DISCONNECTED', {
                 _id: socket.userId,
                 onlineStatus: false,
@@ -52,6 +52,7 @@ function socketService(io) {
             const users = await User.find({}, 'login nickname onlineStatus avatar')
             uploadData(users)
         })
+
         socket.on('GET:DATA:DIALOGS', async (uploadData) => {
             try {
                 const {dialogs} = await User.findOne({_id: socket.userId}, 'dialogs').populate({
@@ -61,11 +62,13 @@ function socketService(io) {
                         populate: {path: 'fid', select: 'login nickname avatar'},
                     },
                 })
+
                 uploadData(dialogs)
             } catch (error) {
                 console.log('socket/GED:DATA:DIALOGS')
             }
         })
+
         socket.on('SEND:MESSAGE', async ({tid, msg}, res) => {
             try {
                 const message = await Message.create({

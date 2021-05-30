@@ -15,9 +15,9 @@ class tokenController {
                     .cookie('token', {token: tokens.refreshToken}, {maxAge: 604800000})
                     .send({token: tokens.accessToken})
             }
-            return res.status(200).send({resultcode: 100, message: 'Перезайдите заново'})
+            return res.status(200).send(false)
         } catch (error) {
-            return res.status(200).send({resultcode: 401, message: 'Ты или украл ключ или дурак'})
+            return res.status(200).send(false)
         }
     }
 }

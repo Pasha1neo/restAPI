@@ -1,7 +1,7 @@
 const {nanoid} = require('nanoid')
 const Token = require('../model/token')
 const jwt = require('jsonwebtoken')
-const secret = 'pasha1neo'
+const secret = process.env.SECRET
 
 const verifyToken = (token) => {
     return jwt.verify(token, secret).id

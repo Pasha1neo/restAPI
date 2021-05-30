@@ -1,3 +1,4 @@
+require('dotenv').config()
 const PORT = process.env.PORT || 5000
 const cors = require('cors')
 const mongoose = require('mongoose')
@@ -10,14 +11,12 @@ const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {
         origin: [
-            'https://gexon.herokuapp.com',
-            'https://project-adaptive.herokuapp.com',
             'http://localhost:3000',
-            'http://127.0.0.1:3000',
             'http://192.168.0.100:3000',
             'http://192.168.0.101:3000',
             'http://192.168.0.102:3000',
             'http://192.168.0.103:3000',
+            'https://gexon.herokuapp.com',
         ],
         methods: ['GET', 'POST'],
     },
@@ -30,17 +29,15 @@ const passportModule = require('./middleware/passport')
 
 //----------------------------------------- END OF IMPORTS---------------------------------------------------
 
-app.use(cookieParser('pasha1neo'))
+app.use(cookieParser(process.env.SECRET))
 app.use(express.static('static'))
 app.use(express.json())
 app.use(fileUpload())
 app.use(
     cors({
         origin: [
-            'https://gexon.herokuapp.com',
-            'https://project-adaptive.herokuapp.com',
             'http://localhost:3000',
-            'http://127.0.0.1:3000',
+            'https://gexon.herokuapp.com',
             'http://192.168.0.100:3000',
             'http://192.168.0.101:3000',
             'http://192.168.0.102:3000',
@@ -59,17 +56,14 @@ app.use('/users', usersRouter)
 
 //----------------------------------------- END OF ROUTES---------------------------------------------------
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
     try {
-        mongoose.connect(
-            'mongodb+srv://Pasha1neo:pasha1neo@project-adaptive.lwubz.mongodb.net/project-adaptive?retryWrites=true&w=majority',
-            {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-                useCreateIndex: true,
-                useFindAndModify: false,
-            }
-        )
+        await mongoose.connect(process.env.LOCALDB, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true,
+            useFindAndModify: true,
+        })
         socketService(io)
         console.log(`http://localhost:${PORT}`)
     } catch (error) {

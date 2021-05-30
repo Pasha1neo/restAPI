@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt')
 
 const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: 'pasha1neo',
+    secretOrKey: process.env.SECRET,
 }
 
 const Passport = (passport) => {
@@ -22,7 +22,7 @@ const Passport = (passport) => {
                     'login email nickname posts avatar password'
                 ).populate({
                     path: 'posts',
-                    populate: {path: 'fid', select: 'login nickname'},
+                    populate: {path: 'fid', select: 'login nickname avatar'},
                 })
                 if (!user) return done(null, false)
                 const result = await bcrypt.compare(password, user.password)
