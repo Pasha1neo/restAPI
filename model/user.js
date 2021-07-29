@@ -22,6 +22,7 @@ const userSchema = new Schema(
         avatar: String,
         dialogs: [{type: Schema.Types.ObjectId, ref: 'dialog'}],
         onlineStatus: Boolean,
+        friends: [{type: Schema.Types.ObjectId, ref: 'friend'}],
     },
     {versionKey: false}
 )

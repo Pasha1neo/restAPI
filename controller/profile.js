@@ -2,7 +2,6 @@ const User = require('../model/user')
 const Post = require('../model/post')
 const {nanoid} = require('nanoid')
 const fs = require('fs')
-
 const time = () => {
     const data = new Date().toLocaleString('ru-RU')
     const data1 = data.split(',')
@@ -16,8 +15,8 @@ function pathAvatar(name) {
 class ProfileController {
     async createPost(req, res) {
         try {
-            const {text} = req.body
-            const user = await User.findById(req.user, 'posts')
+            const {text, tid} = req.body
+            const user = await User.findById(tid, 'posts')
             if (!user) return res.send(false)
             const post = await Post.create({text, fid: req.user, ...time()})
             user.posts.push(post._id)
@@ -28,7 +27,22 @@ class ProfileController {
             return res.send(false)
         }
     }
-
+    async deletePost(req, res) {
+        try {
+            const {pid} = req.body
+            const user = await User.findOneAndUpdate(
+                {_id: req.user, posts: {$in: pid}},
+                {$pull: {posts: {$in: pid}}},
+                {select: 'posts'}
+            )
+            if (!user) return res.send(false)
+            await Post.findByIdAndRemove(pid)
+            return res.send(pid)
+        } catch (error) {
+            console.log('controllers/profile/deletePost')
+            return res.send(false)
+        }
+    }
     async setNickname(req, res) {
         try {
             const {nickname} = req.body
@@ -42,7 +56,6 @@ class ProfileController {
             return res.send(false)
         }
     }
-
     async uploadAvatar(req, res) {
         try {
             const file = req.files?.file
@@ -72,7 +85,6 @@ class ProfileController {
             return res.json({message: 'Ошибка удаления аватарки на сервере'})
         }
     }
-
     async getProfile(req, res) {
         try {
             const userId = req.params?.userId
@@ -89,7 +101,17 @@ class ProfileController {
                 posts: user?.posts,
             })
         } catch (error) {
+            console.log(error)
             console.log('profile/getProfile')
+        }
+    }
+    async getUsers(req, res) {
+        try {
+            const users = await User.find({}, 'login nickname onlineStatus avatar')
+            if (!users) return res.json(false)
+            res.json(users)
+        } catch (error) {
+            console.log('profile/getUsers')
         }
     }
 }

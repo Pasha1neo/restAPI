@@ -35,13 +35,16 @@ class sign {
 
     async auth(req, res) {
         try {
-            const user = await User.findById(
-                req.user,
-                'login email nickname posts avatar'
-            ).populate({
-                path: 'posts',
-                populate: {path: 'fid', select: 'login nickname avatar'},
-            })
+            const user = await User.findById(req.user, 'login email nickname posts avatar')
+                .populate({
+                    path: 'posts',
+                    populate: {path: 'fid', select: 'login nickname avatar'},
+                })
+                .populate({
+                    path: 'friends',
+                    match: {isFriend: true},
+                    populate: {path: 'fid', select: 'login nickname avatar'},
+                })
             if (!user) return res.json(false)
             res.json({
                 user: {
@@ -51,6 +54,7 @@ class sign {
                     nickname: user?.nickname,
                     avatar: user?.avatar,
                     posts: user?.posts,
+                    friends: user?.friends,
                 },
             })
         } catch (error) {

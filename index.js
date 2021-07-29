@@ -23,9 +23,12 @@ const io = require('socket.io')(server, {
 })
 const signRouter = require('./route/sign')
 const profileRouter = require('./route/profile')
+const {getProfile} = require('./route/profile')
 const usersRouter = require('./route/users')
+const userRouter = require('./route/user')
 const socketService = require('./services/socket')
 const passportModule = require('./middleware/passport')
+const profile = require('./controller/profile')
 
 //----------------------------------------- END OF IMPORTS---------------------------------------------------
 
@@ -42,6 +45,7 @@ app.use(
             'http://192.168.0.101:3000',
             'http://192.168.0.102:3000',
             'http://192.168.0.103:3000',
+            'http://192.168.0.104:3000',
         ],
         credentials: true,
     })
@@ -53,7 +57,7 @@ passportModule(passport)
 app.use('/sign', signRouter)
 app.use('/profile', profileRouter)
 app.use('/users', usersRouter)
-
+app.use('/user', userRouter)
 //----------------------------------------- END OF ROUTES---------------------------------------------------
 
 server.listen(PORT, async () => {
